@@ -1,26 +1,39 @@
-# NOS TV — Comando v4 (Samsung TizenBrew)
-
-Modulo experimental, nao oficial, para `https://nostv.pt/`. Nao esta associado a NOS.
+# NOS TV — Comando v4 (TizenBrew Samsung)
+Modulo experimental nao oficial para https://nostv.pt/.
 
 ## Atualizar
-
-No TizenBrew, remove o modulo antigo `hwiguel3/nostv-tizenbrew`, volta a adiciona-lo em **Add GitHub Module** e abre **NOS TV (Comando v4 - Azul)**. O script principal usa o novo nome `main_v4.js` para evitar reutilizar o ficheiro anterior em cache.
+1. Abrir TizenBrew e remover a versao antiga NOS TV.
+2. Add GitHub Module: `hwiguel3/nostv-tizenbrew`
+3. Confirmar que o cartao diz **NOS TV (Comando v4 - Azul) (0.4.0)**.
+4. Ao abrir, procurar o aviso **NOS Comando v4** no canto.
+Se continuar a mostrar v3, a cache do jsDelivr/TizenBrew ainda nao foi renovada;
+nao e defeito do script da v4.
 
 ## Comando
+- Setas: escolher itens e deslocar listas/carrosseis.
+- Contorno azul: selecao visivel.
+- OK: clicar no item.
+- Verde: rato virtual; novo toque volta a navegacao por setas.
+- Azul: diagnostico tecnico sem mostrar PIN nem credenciais.
+- **Na lista lateral de canais:** Esquerda ou Voltar para abandonar o scroll lateral
+  e regressar a outro elemento ou ao menu superior, quando encontrado.
 
-- Setas: mover selecao; scroll vertical e horizontal quando aplicavel.
-- Contorno **azul**: evidencia o elemento selecionado.
-- Na lista vertical lateral de canais: **Esquerda** ou **Voltar** tenta sair da lista para o restante conteudo.
-- OK: selecionar, utilizando um clique normal.
-- Verde: alternar para o rato virtual.
-- Azul: mostrar informacoes de diagnostico, incluindo campos PIN, iframes, MSE e EME.
-
-## PIN: estado experimental
-
-Na janela de PIN, OK tenta primeiro focar o campo de texto real da NOS. Se nao encontrar um campo focavel, abre o teclado numerico alternativo. A compatibilidade do PIN **nao esta confirmada**: formularios com elementos de desenho personalizados, iframes isoladas ou rejeicao de eventos de JavaScript podem impedir a escrita. O modulo nao guarda nem transmite o PIN. A informacao em azul **nunca inclui os digitos**.
+## PIN
+Tentativa de focar o verdadeiro campo da NOS antes de apresentar o teclado
+numerico alternativo. A v4 envia eventos input/change aos inputs que conseguir
+identificar. Isto NAO equivale a uma entrada fisica autenticada e pode ser
+ignorado pela NOS, sobretudo em widgets especiais ou iframes. Se nao resultar:
+no ecrã de PIN, carregar no botao azul e enviar uma imagem dos contadores
+«PIN detetado», «Caixas PIN», «Campos PIN» e «Tipos de campo» (sem revelar o PIN).
 
 ## Erro NTV135
+A NOS classifica NTV135 como problema de conectividade ao servico.
+Pode tambem acontecer por falha da sessao ou incompatibilidade do ambiente
+de reproducao; apenas estas imagens nao permitem determinar a causa.
+A v4 inclui informacao sobre MSE, EME e numero de videos no diagnostico.
+Nao contorna DRM nem garante reproducao.
 
-Este erro pode ser causado pela propria NOS TV (ligacao/reproducao), nao apenas pela navegacao do modulo. O painel azul indica se o motor web disponibiliza as APIs MSE e EME, mas nao confirma suporte para um DRM especifico. Se o navegador Samsung original reproduzir o mesmo canal e o TizenBrew nao, esse contraste indica um problema de compatibilidade ou ambiente de reproducao que requer investigacao separada.
-
-Nao alterar nem contornar protecoes DRM.
+## Limites
+A sintaxe JavaScript foi verificada, mas ainda nao testada fisicamente na Q60A
+do utilizador. A URL de navegação permanece a original, https://nostv.pt/.
+Este modulo nao recolhe, armazena nem envia PINs para fora do website da NOS.
