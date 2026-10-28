@@ -1,10 +1,10 @@
-/* NOS TV Comando v1: modulo experimental para TizenBrew.
+/* NOS TV Comando v2: modulo experimental para TizenBrew.
    Navegacao espacial propria, contorno independente de :focus e rato virtual.
    Nao e uma aplicacao oficial NOS. ES5 para Tizen 6. */
 (function () {
   'use strict';
-  if (!/(^|\.)nostv\.pt$/i.test(location.hostname) || window.__nosRemoteV1) return;
-  window.__nosRemoteV1 = true;
+  if (!/(^|\.)nostv\.pt$/i.test(location.hostname) || window.__nosRemoteV2) return;
+  window.__nosRemoteV2 = true;
 
   var selected = null, choices = [], ring = null, mouse = null, info = null;
   var mouseMode = false, mx = window.innerWidth / 2, my = window.innerHeight / 2;
@@ -38,6 +38,8 @@
         'outline:4px solid #ffe45c!important;outline-offset:3px!important;',
         'border:1px solid #111!important;border-radius:5px!important;',
         'box-shadow:0 0 0 2px #111,0 0 18px #ffd324!important;}',
+        '#nos-remote-ring.pin-mode{outline-color:#38bdf8!important;',
+        'box-shadow:0 0 0 2px #071b36,0 0 19px 5px rgba(56,189,248,.85)!important;}',
         '#nos-remote-mouse{position:fixed!important;display:none;pointer-events:none!important;',
         'z-index:2147483647!important;width:22px;height:22px;border:3px solid #ffe45c;',
         'border-radius:50%;background:rgba(255,220,30,.2);box-shadow:0 0 9px #000;}',
@@ -64,7 +66,7 @@
   }
   function message(s) {
     if (!ui()) return;
-    info.textContent='NOS Comando v1 | '+s;
+    info.textContent='NOS Comando v2 | '+s;
     info.style.display='block';
     if (infoTimer) clearTimeout(infoTimer);
     infoTimer=setTimeout(function(){ if(info) info.style.display='none'; },2400);
@@ -125,6 +127,108 @@
     choices=clean;
     return clean;
   }
+
+  // Four visible PIN boxes may belong to a single hidden input.
+  function pinDialog() {
+    var heads=document.querySelectorAll('h1,h2,h3,h4,p,span,div,label');
+    var heading=null, hr=null, i, el, txt, r, style;
+    for(i=0;i<heads.length && i<4500;i++) {
+      el=heads[i];
+      if(isOwn(el)) continue;
+      txt=(el.textContent||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
+      if(txt.length>42 || !/^(introduza|insira|digite|enter)\s+(o\s+|seu\s+|your\s+)?pin$/i.test(txt)) continue;
+      r=box(el);
+      if(!r || r.width<35 || r.height<12 || r.bottom<0 || r.top>=window.innerHeight) continue;
+      style=window.getComputedStyle(el);
+      if(style.display==='none' || style.visibility==='hidden') continue;
+      if(!hr || r.width*r.height<hr.width*hr.height) {heading=el;hr=r;}
+    }
+    if(!heading) return null;
+
+    var inputs=document.querySelectorAll('input:not([type="hidden"]),textarea');
+    var chosenInput=null, bestInputScore=-999;
+    for(i=0;i<inputs.length;i++) {
+      el=inputs[i];
+      if(el.disabled || el.readOnly) continue;
+      var attrs=[el.id,el.name,el.placeholder,el.getAttribute('aria-label')].join(' ');
+      var score=/pin|code|codigo|c[oó]digo/i.test(attrs)?110:0;
+      if(el.maxLength===4) score+=100;
+      if(/^(numeric|decimal|tel)$/i.test(el.inputMode||el.getAttribute('inputmode')||'')) score+=70;
+      if(/^(password|tel|number)$/i.test(el.type)) score+=50;
+      r=box(el);
+      if(r && r.top>hr.bottom-15 && r.top<hr.bottom+270 &&
+         r.left>hr.left-120 && r.left<hr.right+360) score+=65;
+      if(score>bestInputScore) {bestInputScore=score;chosenInput=el;}
+    }
+
+    var nodes=document.querySelectorAll('div,span,input,button');
+    var items=[], last, base, group, j, k;
+    for(i=0;i<nodes.length && i<5500;i++) {
+      el=nodes[i];
+      if(isOwn(el)) continue;
+      r=box(el);
+      if(!r || r.width<14 || r.width>76 || r.height<15 || r.height>76) continue;
+      if(r.left<hr.left-65 || r.left>hr.right+355 ||
+         r.top<hr.bottom+15 || r.top>hr.bottom+250) continue;
+      style=window.getComputedStyle(el);
+      if(style.display==='none' || style.visibility==='hidden' ||
+         parseFloat(style.opacity)<0.05) continue;
+      items.push({el:el,r:r});
+    }
+    items.sort(function(a,b) {
+      return Math.abs(a.r.top-b.r.top)>8?a.r.top-b.r.top:a.r.left-b.r.left;
+    });
+    var match=null, matchScore=Infinity;
+    for(i=0;i<items.length;i++) {
+      group=[items[i]];base=items[i].r;last=base;
+      for(j=0;j<items.length && group.length<4;j++) {
+        r=items[j].r;
+        if(Math.abs(r.top-base.top)>9 || Math.abs(r.height-base.height)>15 ||
+           Math.abs(r.width-base.width)>17) continue;
+        var gap=r.left-last.right;
+        if(gap< -3 || gap>32 || r.left<=last.left+10) continue;
+        group.push(items[j]);last=r;
+      }
+      if(group.length===4) {
+        var scoreGroup=Math.abs(group[0].r.width-group[0].r.height)+
+          Math.abs(group[0].r.top-(hr.bottom+115))*.08+group[0].r.width*.04;
+        if(scoreGroup<matchScore) {matchScore=scoreGroup;match=group;}
+      }
+    }
+    if(match) {
+      var left=match[0].r.left,top=match[0].r.top,right=match[0].r.right,bottom=match[0].r.bottom;
+      for(k=1;k<4;k++) {
+        left=Math.min(left,match[k].r.left);top=Math.min(top,match[k].r.top);
+        right=Math.max(right,match[k].r.right);bottom=Math.max(bottom,match[k].r.bottom);
+      }
+      return {rect:{left:left,top:top,width:right-left,height:bottom-top},slot:match[0].el,input:chosenInput};
+    }
+    if(chosenInput) {
+      r=box(chosenInput);
+      if(r && r.width>12 && r.height>12 && r.left>=0 && r.top>=0)
+        return {rect:{left:r.left,top:r.top,width:r.width,height:r.height},slot:chosenInput,input:chosenInput};
+    }
+    return null;
+  }
+
+  function focusPin(dialog) {
+    var input=dialog.input, i;
+    if(dialog.slot) {
+      var r=box(dialog.slot),p=r?center(r):null;
+      if(p) clickAt(dialog.slot,p.x,p.y);
+    }
+    if(!input) {
+      var inputs=document.querySelectorAll('input:not([type="hidden"]),textarea');
+      for(i=0;i<inputs.length;i++) {
+        if(!inputs[i].disabled && !inputs[i].readOnly) {input=inputs[i];break;}
+      }
+    }
+    if(input) {
+      try {input.focus();input.click();} catch(err) {}
+    }
+    message(input?'PIN selecionado | Introduz o codigo':'PIN selecionado | OK para escrever');
+  }
+
   function draw() {
     if (!ui()) return;
     if (mouseMode) {
@@ -133,6 +237,15 @@
       return;
     }
     mouse.style.display='none';
+    var pin=pinDialog();
+    if(pin) {
+      ring.className='pin-mode';
+      ring.style.left=Math.max(0,pin.rect.left)+'px';
+      ring.style.top=Math.max(0,pin.rect.top)+'px';
+      ring.style.width=pin.rect.width+'px';ring.style.height=pin.rect.height+'px';
+      ring.style.display='block';return;
+    }
+    ring.className='';
     if(!selected || !document.documentElement.contains(selected) ||
        !visible(selected) || Date.now()-lastActivity>14000) {
       ring.style.display='none'; return;
@@ -199,6 +312,11 @@
     e.preventDefault(); e.stopPropagation();
     if(e.stopImmediatePropagation) e.stopImmediatePropagation();
     lastActivity=Date.now();
+    var pin=pinDialog();
+    if(pin && !mouseMode && (arrow || key===13)) {
+      if(key===13) focusPin(pin);
+      draw();return;
+    }
     if(key===404) {
       if(e.repeat) return;
       mouseMode=!mouseMode;
