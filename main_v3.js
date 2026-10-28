@@ -309,7 +309,7 @@
   function tryCarouselArrow(key,base) {
     if(key!==37&&key!==39)return false;
     var container=base,depth=0;
-    while(container&&depth++<5) {
+    while(container&&depth++<8) {
       var arrows=container.querySelectorAll?container.querySelectorAll('button,[role="button"],a'):[],
           br=rect(base),choice=null,score=Infinity;
       for(var i=0;i<arrows.length&&i<120;i++) {
@@ -360,12 +360,36 @@
     if(targets.indexOf(selected)<0)selected=null;
     if(!selected){selected=firstTarget(targets);draw();return;}
     var result=nearest(targets,center(rect(selected)),key);
+    var origin=center(rect(selected));
     if(result.el) {
-      selected=result.el;
-      draw();
+      var candidateCenter=center(rect(result.el));
+      var crossGap=(key===37||key===39)?
+        Math.abs(candidateCenter.y-origin.y):Math.abs(candidateCenter.x-origin.x);
+      var crossLimit=(key===37||key===39)?Math.max(75,innerHeight*.10):
+        Math.max(160,innerWidth*.18);
+      // Do not jump to an unrelated navigation menu at the end of a carousel.
+      if(crossGap<=crossLimit) {
+        selected=result.el;
+        draw();
+        return;
+      }
+      // On wide perpendicular jumps, prefer scrolling the current row/page.
+      if(!scrollFallback(key)) {
+        selected=result.el;draw();return;
+      }
+      notify('A deslocar '+(key===39?'direita':key===37?'esquerda':key===40?'baixo':'cima'));
+      setTimeout(function() {
+        var newlyVisible=targetsInView(false),next=nearest(newlyVisible,origin,key);
+        if(next.el) {
+          var ncenter=center(rect(next.el));
+          var gap=(key===37||key===39)?
+            Math.abs(ncenter.y-origin.y):Math.abs(ncenter.x-origin.x);
+          if(gap<=crossLimit)selected=next.el;
+        }
+        draw();
+      },200);
       return;
     }
-    var origin=center(rect(selected));
     if(scrollFallback(key)) {
       notify('A deslocar '+(key===39?'direita':key===37?'esquerda':key===40?'baixo':'cima'));
       setTimeout(function() {
@@ -467,7 +491,7 @@
     if(pinValue.length===4) {
       pinPad=false;pinValue='';
       setTimeout(draw,120);
-      notify('PIN enviado ao formulario NOS');
+      notify('PIN escrito no formulario; aguarda resposta NOS');
     }
   }
   function movePad(key) {
