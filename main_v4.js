@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   if (!/(^|\.)nostv\.pt$/i.test(location.hostname) || window.__nosRemoteV4) return;
-  window.__nosRemoteV3 = true;
+  window.__nosRemoteV4 = true;
 
   var PREFIX='ntv4-', BLUE='#168cff';
   var selected=null, targets=[], ring=null, cursor=null, toast=null, panel=null;
@@ -150,7 +150,7 @@
     return best;
   }
   function pinInputCandidates(heading,area) {
-    var a=document.querySelectorAll('input,textarea,[contenteditable="true"]');
+    var a=document.querySelectorAll('input,textarea,[contenteditable="true"],[role="textbox"]');
     var hr=rect(heading),out=[];
     for(var i=0;i<a.length;i++) {
       var e=a[i];if(own(e)||e.disabled||e.readOnly||e.type==='hidden')continue;
@@ -166,7 +166,14 @@
         if(c.x>hr.left-120&&c.x<hr.right+380&&c.y>hr.top-25&&c.y<hr.bottom+300)sc+=110;
         if(area&&c.x>area.left-60&&c.x<area.right+60&&c.y>area.top-40&&c.y<area.bottom+70)sc+=140;
       }
-      if(sc>40)out.push({el:e,score:sc,rect:r});
+      var near=false;
+      if(r) {
+        var q=center(r);
+        near=q.y>=hr.top-28&&q.y<=hr.bottom+320&&
+          q.x>=Math.max(0,hr.left-130)&&q.x<=Math.min(innerWidth,hr.right+400);
+      }
+      if((near||/pin|otp|pass|code|c[oó]digo/i.test(attrs))&&sc>=65)
+        out.push({el:e,score:sc,rect:r});
     }
     out.sort(function(x,y){return y.score-x.score;});
     return out;
@@ -506,7 +513,11 @@
         var desc=Object.getOwnPropertyDescriptor(proto,'value');
         if(desc&&desc.set)desc.set.call(e,value);else e.value=value;
       }
-      e.dispatchEvent(new Event('input',{bubbles:true}));
+      try{
+        if(typeof InputEvent==='function')
+          e.dispatchEvent(new InputEvent('input',{bubbles:true,inputType:'insertText'}));
+        else e.dispatchEvent(new Event('input',{bubbles:true}));
+      }catch(ignore){e.dispatchEvent(new Event('input',{bubbles:true}));}
       e.dispatchEvent(new Event('change',{bubbles:true}));
       return true;
     }catch(err){lastError='PIN: '+String(err).slice(0,130);return false;}
@@ -514,17 +525,21 @@
   function writePin() {
     var pin=detectPin(true),ins=pin&&pin.inputs?pin.inputs:[],i;
     if(!pin)return false;
-    if(ins.length>=4&&ins[0].el.maxLength===1) {
-      // Order boxes by their screen position, not DOM order.
-      var four=ins.slice(0,4).sort(function(a,b) {
-        var ar=a.rect,br=b.rect;return ar&&br?ar.left-br.left:0;
-      });
-      for(i=0;i<4;i++)nativeSet(four[i].el,pinValue.charAt(i)||'');
-      return true;
+    var singles=[];
+    for(i=0;i<ins.length;i++)if(ins[i].el.maxLength===1)singles.push(ins[i]);
+    if(singles.length>=4) {
+      var four=singles.slice(0,4).sort(function(a,b){
+        return a.rect&&b.rect?a.rect.left-b.rect.left:0;
+      }),okAll=true;
+      for(i=0;i<4;i++) {
+        try{four[i].el.focus();}catch(ignore){}
+        if(!nativeSet(four[i].el,pinValue.charAt(i)||''))okAll=false;
+      }
+      return okAll;
     }
     if(ins.length) {
-      nativeSet(ins[0].el,pinValue);
-      return true;
+      try{ins[0].el.focus();}catch(ignore){}
+      return nativeSet(ins[0].el,pinValue);
     }
     // A NOS may expose only div-based slots, without a real input.
     // Do not claim success or store a PIN in that case.
@@ -601,7 +616,7 @@
     var els=document.querySelectorAll('main,div,section,article');
     for(var i=0;i<els.length&&i<3000;i++)
       if(canScroll(els[i],true)||canScroll(els[i],false))scrolls++;
-    var d=['NOS TV — Diagnostico v3','URL: '+location.pathname,
+    var d=['NOS TV — Diagnostico v4','URL: '+location.pathname,
       'Botoes visiveis: '+targetsInView(false).length,
       'Areas scroll possiveis: '+scrolls,
       'PIN detetado: '+(pin?'SIM':'NAO'),
@@ -643,10 +658,17 @@
       return;
     }
     if(k===10009&&pinPad){pinPad=false;pinValue='';draw();return;}
-    if(k===10009&&inRail){leaveChannelRail();return;}
+    if(k===10009&&inRail){
+      if(!leaveChannelRail()) {
+        if(!leaveToTop()){selected=null;draw();notify('Saiu da lista; escolhe menu superior');}
+      }
+      return;
+    }
     // Left immediately escapes the vertical channel list.
     if(k===37&&inRail&&!mouseMode&&!pinPad) {
-      if(!leaveChannelRail())leaveToTop();
+      if(!leaveChannelRail()) {
+        if(!leaveToTop()){selected=null;draw();notify('Saiu da lista; escolhe menu superior');}
+      }
       return;
     }
     if(k===404) {
