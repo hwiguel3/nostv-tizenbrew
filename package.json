@@ -1,8 +1,8 @@
 {
   "name": "nostv-remote-tizenbrew",
-  "appName": "NOS TV (Comando v2 - PIN azul)",
+  "appName": "NOS TV (Comando v2)",
   "version": "0.2.0",
-  "description": "Navegacao por setas, PIN com contorno azul e entrada por OK na NOS TV Samsung Tizen.",
+  "description": "Navegacao por setas e PIN de perfil com selecao azul e teclado numerico.",
   "packageType": "mods",
   "websiteURL": "https://nostv.pt/",
   "main": "main.js",
