@@ -371,7 +371,7 @@
         if(ar&&ar.top<innerHeight*.28){best=el;break;}
       }
     }
-    if(!best)return false;
+    if(!best) return leaveToTop();
     selected=best;
     try{if(selected.focus)selected.focus({preventScroll:true});}catch(err){}
     draw();notify('Saíste da lista de canais');return true;
@@ -695,10 +695,20 @@
     var inRail=channelRail();
     var channelView=location.pathname.toLowerCase().indexOf('canais')>=0||
       !!document.querySelector('[aria-current="page"][href*="canais"]');
+    if(!channelView) {
+      // NOS uses an SPA: the active Canais tab may not change the URL.
+      var navs=document.querySelectorAll('header a,header button,nav a,nav button,[role="tab"]');
+      for(var ci=0;ci<navs.length&&ci<90;ci++) {
+        var textNav=(navs[ci].textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+        if(textNav==='canais'&&shown(navs[ci],false)) {
+          channelView=true;break;
+        }
+      }
+    }
     var railLike=!!inRail;
     if(!railLike&&selected&&channelView) {
       var sr=rect(selected);
-      railLike=!!(sr&&sr.top>innerHeight*.20&&sr.left>innerWidth*.37);
+      railLike=!!(sr&&sr.top>innerHeight*.20&&sr.left>innerWidth*.22);
     }
     if(k===10009&&!pinPad&&panel.style.display!=='block'&&!railLike)return;
     var target=e.target,tag=target&&target.tagName;
