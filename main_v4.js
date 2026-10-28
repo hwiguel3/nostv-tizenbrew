@@ -57,25 +57,25 @@
       var css=document.createElement('style');
       css.id=PREFIX+'css';
       css.textContent=[
-        '#ntv3-ring{position:fixed!important;z-index:2147483639!important;',
+        '#ntv4-ring{position:fixed!important;z-index:2147483639!important;',
         'display:none;pointer-events:none!important;box-sizing:border-box!important;',
         'border:4px solid #168cff!important;border-radius:8px!important;',
         'box-shadow:0 0 0 2px #061b4f,0 0 20px 5px rgba(22,140,255,.8)!important;}',
-        '#ntv3-cursor{position:fixed!important;z-index:2147483640!important;',
+        '#ntv4-cursor{position:fixed!important;z-index:2147483640!important;',
         'display:none;pointer-events:none!important;width:22px;height:22px;',
         'border:4px solid #168cff!important;border-radius:50%!important;',
         'background:rgba(22,140,255,.28)!important;box-shadow:0 0 12px #168cff!important;}',
-        '#ntv3-toast{position:fixed!important;right:12px!important;top:13px!important;',
+        '#ntv4-toast{position:fixed!important;right:12px!important;top:13px!important;',
         'z-index:2147483642!important;display:none;pointer-events:none!important;',
         'background:#002b64!important;color:#fff!important;',
         'border:2px solid #168cff!important;border-radius:6px!important;',
         'padding:8px 12px!important;font:17px Arial,sans-serif!important;}',
-        '#ntv3-panel{position:fixed!important;left:5%!important;top:15%!important;',
+        '#ntv4-panel{position:fixed!important;left:5%!important;top:15%!important;',
         'z-index:2147483645!important;display:none;width:90%!important;',
         'max-height:68%!important;overflow:auto!important;',
         'background:#081b36!important;color:white!important;border:3px solid #168cff!important;',
         'border-radius:10px!important;padding:20px!important;font:18px Arial,sans-serif!important;}',
-        '#ntv3-pinpad{position:fixed!important;z-index:2147483643!important;',
+        '#ntv4-pinpad{position:fixed!important;z-index:2147483643!important;',
         'display:none;left:50%!important;top:50%!important;',
         'transform:translate(-50%,-50%)!important;box-sizing:border-box!important;',
         'width:420px!important;max-width:92vw!important;padding:16px!important;',
@@ -83,10 +83,10 @@
         'border:4px solid #168cff!important;border-radius:12px!important;',
         'font:20px Arial,sans-serif!important;text-align:center!important;',
         'box-shadow:0 8px 65px rgba(0,0,0,.85)!important;}',
-        '#ntv3-pinpad .ntv3-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important;}',
-        '#ntv3-pinpad .ntv3-key{padding:12px 1px!important;border:2px solid #6484b2!important;',
+        '#ntv4-pinpad .ntv4-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:7px!important;}',
+        '#ntv4-pinpad .ntv4-key{padding:12px 1px!important;border:2px solid #6484b2!important;',
         'border-radius:8px!important;background:#1c3760!important;}',
-        '#ntv3-pinpad .ntv3-current{background:#065dbd!important;border-color:#ccecff!important;',
+        '#ntv4-pinpad .ntv4-current{background:#065dbd!important;border-color:#ccecff!important;',
         'box-shadow:0 0 14px #168cff!important;}'
       ].join('');
       (document.head||document.documentElement).appendChild(css);
@@ -100,9 +100,9 @@
     var pad=make('pinpad');
     if(!pad.getAttribute('data-ready')) {
       var html='<div style="font-weight:bold;margin-bottom:8px">PIN do perfil NOS</div>'+
-        '<div id="ntv3-dots" style="margin:12px;font-size:26px">○ ○ ○ ○</div>'+
-        '<div class="ntv3-grid">';
-      for(var i=0;i<PIN_KEYS.length;i++)html+='<div class="ntv3-key">'+PIN_KEYS[i]+'</div>';
+        '<div id="ntv4-dots" style="margin:12px;font-size:26px">○ ○ ○ ○</div>'+
+        '<div class="ntv4-grid">';
+      for(var i=0;i<PIN_KEYS.length;i++)html+='<div class="ntv4-key">'+PIN_KEYS[i]+'</div>';
       pad.innerHTML=html+'</div><div style="font-size:14px;margin-top:9px">Setas: selecionar · OK: inserir · Voltar: sair</div>';
       pad.setAttribute('data-ready','1');
     }
@@ -126,9 +126,9 @@
     if(!pad)return;
     pad.style.display=pinPad?'block':'none';
     if(!pinPad)return;
-    var keys=pad.querySelectorAll('.ntv3-key');
-    for(var i=0;i<keys.length;i++)keys[i].className='ntv3-key'+(i===pinIndex?' ntv3-current':'');
-    var dot=pad.querySelector('#ntv3-dots');
+    var keys=pad.querySelectorAll('.ntv4-key');
+    for(var i=0;i<keys.length;i++)keys[i].className='ntv4-key'+(i===pinIndex?' ntv4-current':'');
+    var dot=pad.querySelector('#ntv4-dots');
     if(dot) {
       var chars=[];
       for(i=0;i<4;i++)chars.push(i<pinValue.length?'●':'○');
