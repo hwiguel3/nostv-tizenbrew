@@ -1,11 +1,11 @@
 {
   "name": "nostv-remote-tizenbrew",
-  "appName": "NOS TV (Comando v6 - Base v3)",
-  "version": "0.6.0",
-  "description": "Base de navegacao v3 com scroll e destaque azul; saida controlada das listas; PIN nativo e diagnostico de video.",
+  "appName": "NOS TV (v5 corrigida - v7)",
+  "version": "0.7.0",
+  "description": "Navegacao azul e scroll da v5; Voltar/Esquerda fecha Definicoes; diagnostico video NTV135.",
   "packageType": "mods",
   "websiteURL": "https://nostv.pt/",
-  "main": "main_v6.js",
+  "main": "main_v7.js",
   "keys": [
     "ColorF1Green",
     "ColorF3Blue"
