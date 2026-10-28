@@ -1,45 +1,26 @@
-# NOS TV — Comando v3 (Samsung TizenBrew)
+# NOS TV — Comando v4 (Samsung TizenBrew)
 
-Modulo experimental, nao oficial, para `https://nostv.pt/`.
-Nao esta associado a NOS.
+Modulo experimental, nao oficial, para `https://nostv.pt/`. Nao esta associado a NOS.
 
-## Instalacao / atualizacao
+## Atualizar
 
-1. Abre TizenBrew na TV.
-2. Remove o modulo antigo `hwiguel3/nostv-tizenbrew` caso continue a carregar a v2.
-3. Adiciona **Add GitHub Module**: `hwiguel3/nostv-tizenbrew`.
-4. Abre **NOS TV (Comando v3 - Azul)**. A mensagem inicial devera dizer `NOS Comando v3`.
-
-O manifesto usa o novo ficheiro `main_v3.js` para contornar a cache do script antigo.
+No TizenBrew, remove o modulo antigo `hwiguel3/nostv-tizenbrew`, volta a adiciona-lo em **Add GitHub Module** e abre **NOS TV (Comando v4 - Azul)**. O script principal usa o novo nome `main_v4.js` para evitar reutilizar o ficheiro anterior em cache.
 
 ## Comando
 
-- Setas: mover a selecao e tentar percorrer a pagina.
-- Contorno azul: indica o elemento selecionado (nao depende de CSS `:focus` da NOS).
-- OK: tentar ativar o elemento com um unico clique.
-- Verde: alternar rato virtual e navegacao normal.
-- Azul: painel de diagnostico, com contagem de elementos, areas com scroll e estado do PIN.
-- No pedido de PIN: quatro caixas destacadas a azul; **OK** abre teclado numerico interno, setas escolhem digitos e OK insere. Voltar fecha o teclado.
+- Setas: mover selecao; scroll vertical e horizontal quando aplicavel.
+- Contorno **azul**: evidencia o elemento selecionado.
+- Na lista vertical lateral de canais: **Esquerda** ou **Voltar** tenta sair da lista para o restante conteudo.
+- OK: selecionar, utilizando um clique normal.
+- Verde: alternar para o rato virtual.
+- Azul: mostrar informacoes de diagnostico, incluindo campos PIN, iframes, MSE e EME.
 
-## Corrigido face a v2
+## PIN: estado experimental
 
-- Um unico controlador de teclas, eliminando a sobreposicao entre o script PIN e o de navegacao.
-- Contornos azuis no lugar dos amarelos.
-- Tentativas de scroll vertical em contentores interiores e pagina principal.
-- Tentativas de scroll horizontal e, se existir, utilizacao das setas de carrossel.
-- Um unico clique nativo nos cartoes, evitando sequencias sinteticas de varios eventos.
-- Pesquisa de campos HTML de PIN e escrita atraves de eventos `input` / `change` nos campos localizados.
+Na janela de PIN, OK tenta primeiro focar o campo de texto real da NOS. Se nao encontrar um campo focavel, abre o teclado numerico alternativo. A compatibilidade do PIN **nao esta confirmada**: formularios com elementos de desenho personalizados, iframes isoladas ou rejeicao de eventos de JavaScript podem impedir a escrita. O modulo nao guarda nem transmite o PIN. A informacao em azul **nunca inclui os digitos**.
 
-## Limites importantes
+## Erro NTV135
 
-Esta versao foi verificada quanto a sintaxe, mas nao esta validada numa sessao real na Samsung Q60A.
-O PIN pode continuar a nao funcionar se as caixas ou o formulario estiverem isolados numa iframe inacessivel,
-se a NOS exigir eventos fisicos confiaveis ou se os campos tiverem uma implementacao nao padrao.
-Neste caso, premir o botao azul apresenta **PIN detetado / Caixas PIN / Campos PIN**,
-que ajuda a localizar a falha sem mostrar nem guardar o codigo.
+Este erro pode ser causado pela propria NOS TV (ligacao/reproducao), nao apenas pela navegacao do modulo. O painel azul indica se o motor web disponibiliza as APIs MSE e EME, mas nao confirma suporte para um DRM especifico. Se o navegador Samsung original reproduzir o mesmo canal e o TizenBrew nao, esse contraste indica um problema de compatibilidade ou ambiente de reproducao que requer investigacao separada.
 
-Se abrir um canal continuar a produzir erro, recolhe uma fotografia **da mensagem exata de erro**.
-Se o erro surgir apesar do clique corrigido, pode nao ser um problema de navegacao,
-mas sim do site / descodificacao / DRM / sessao, e nao deve ser contornado com cliques adicionais.
-
-Nenhum PIN e gravado no repositorio, telemetria ou armazenamento local pelo modulo.
+Nao alterar nem contornar protecoes DRM.
