@@ -1,37 +1,40 @@
-# NOS TV — Comando v6 (base v3) / TizenBrew Samsung Q60A
+# NOS TV para TizenBrew — v7 (v5 corrigida)
 
-Modulo experimental nao oficial para `https://nostv.pt/`, sem qualquer associacao a NOS.
+Modulo nao oficial e experimental para `https://nostv.pt/`.
 
-## Porque regressamos a v3
+## Estado confirmado pelo utilizador
 
-O utilizador confirmou que na v3 o scroll (vertical e horizontal) e o destaque azul funcionavam, mas o PIN nativo continuava com quatro caixas vazias, a reproducao dos canais dava erro e ficava preso no scroll da lista dos canais. A v5 introduziu uma regressao na navegacao.
+- **V5**: a navegacao pelo comando funciona, o contorno de selecao e azul e o scroll funciona.
+- Problema a corrigir: ao abrir **Definições** (painel lateral a direita da pagina, com X no topo esquerdo do painel), o utilizador nao consegue fechar e fica preso.
+- Reproducao de canais no modulo da erro **NTV135**.
+- Reproducao de canais **funciona no browser Samsung nativo da mesma TV**.
+- A anterior v6 partiu da v3 a pedido do utilizador mas foi abandonada apos confirmacao de que a v5 afinal funcionava.
 
-A v6 foi criada **diretamente a partir de main_v3.js**. A funcao de navegacao `navigate`, os estilos do foco azul e a logica de scroll foram preservados sem alteracoes funcionais.
+## O que mudou na v7
 
-## Alteracoes pontuais da v6
+**Base: ficheiro `main_v5.js`.** A funcao `navigate` e a navegacao/scroll da v5 foram preservados. A v7 nao parte da v6.
 
-- **Sair da lista de canais:** ao selecionar um item dentro de uma area realmente scrollavel na vertical, **Esquerda** ou **Voltar** tentam transferir a selecao para um elemento fora da lista. Nao ha a heuristica larga da v5 baseada em coordenadas e na simples existencia da tab Canais.
-- **PIN:** tenta primeiro clicar nas caixas originais e focar um campo nativo para permitir o teclado do Tizen. Pesquisa campos HTML, Shadow DOM aberto e iframes de mesma origem. Se houver input real mas nao for possivel focar, fica disponivel o teclado alternativo. Se so houver quatro caixas decorativas sem input editavel, o teclado falso nao aparece a fingir que inseriu o codigo.
-- **Reproducao:** adiciona diagnostico de MSE, EME, codecs, videos HTML, codigos de erro de media e user-agent no botao **Azul**. Nao modifica DRM, pedidos ao servidor ou autenticacao.
+1. Deteta o titulo visivel **Definições** na metade direita, procura o controlo X proximo do titulo e tenta clicar ao premir **Voltar** (keyCode 10009) ou **Esquerda**, antes das heuristicas de lista de canais.
+2. Se nao encontrar o controlo X, deixa a NOS receber a tecla, em vez de intercetar Voltar por engano.
+3. Diagnostico do NTV135 com botao **Azul**: Video DOM, erros de video, MSE, EME, H264, HLS, AVPlay, contexto seguro e user-agent. **Nao altera DRM nem autenticacao, nem garante a reproducao.**
 
-## Instalacao
+## Instalacao e atualizacao
 
-1. Retirar do TizenBrew a versao anterior de `hwiguel3/nostv-tizenbrew`.
-2. Adicionar **Add GitHub Module** com o texto `hwiguel3/nostv-tizenbrew`, sem `@`.
-3. Abrir **NOS TV (Comando v6 - Base v3)**, versao **0.6.0**.
-4. Confirmar a mensagem `NOS Comando v6`. Se ainda aparecer v5, fechar completamente TizenBrew e reiniciar, pois pode haver cache dos scripts.
+1. No TizenBrew, remover o modulo anterior.
+2. Em **Add GitHub Module**, inserir `hwiguel3/nostv-tizenbrew` (sem arroba).
+3. Abrir **NOS TV (v5 corrigida - v7)**, versao **0.7.0**.
+4. Confirmar notificacao `NOS Comando v7`. Se abrir a versao anterior, encerrar e reabrir o TizenBrew (eventual cache).
 
-## Testes na TV
+## Testes solicitados
 
-1. No ecra inicial, confirmar que as setas selecionam elementos e o contorno azul e scroll continuam funcionais.
-2. No PIN: tocar OK sobre as caixas. Caso apareca o teclado nativo, escrever por ele. Se as caixas nao mudarem, premir Azul, fotografar somente `PIN detetado`, `Caixas PIN`, `Campos PIN`, `Tipos PIN`, `Inputs totais` e `Iframes`. **Nao fotografar nem enviar o PIN.**
-3. Selecionar um canal e testar seta Esquerda / Voltar quando a selecao esta na lista vertical.
-4. Quando surgir NTV135, premir Azul e fotografar `MSE`, `EME`, `Videos DOM`, `Erros videos`, `H264`, `HLS` e `Motor`.
+- Na pagina inicial, confirmar que a selecao azul e o scroll funcionam como na v5.
+- Abrir o painel **Definições** (como na fotografia) e premir **Voltar** ou **Esquerda**: deve tentar clicar no X do painel.
+- Abrir um canal e, com erro NTV135 visivel, premir **Azul**. Enviar foto do diagnostico onde se vejam `EME API`, `MSE`, `AVPlay`, `H264 HTML`, `MSE H264`, `Video DOM`, `Erros video` e `Motor`. Nao enviar PIN ou credenciais.
 
-## Observacoes
+O NTV135 pode ter causas diversas. A reproducao bem-sucedida no browser nativo Samsung nao prova que o contexto TizenBrew tenha igual DRM/EME, user-agent, cookies ou comportamento de player. As APIs da Samsung confirmam capacidades DRM em Tizen 6.0, mas a causa do erro especifico nesta combinacao ainda nao foi medida.
 
-O utilizador conseguiu efetivamente ver canais em `nostv.pt` no browser Samsung nativo, mas nao atraves do modulo TizenBrew. Essa diferenca demonstra que a TV e a conta conseguem reproduzir no primeiro contexto, **nao** que o WebView da segunda aplicacao tenha as mesmas capacidades. NTV135 e mencionado pela NOS na sua ajuda como erro que pode estar relacionado com conectividade, mas a origem concreta aqui continua por diagnosticar.
+## Rollback
 
-Esta versao nao foi ainda validada em hardware real. Nao existe garantia de que um evento sintetico de teclado atualize os inputs da NOS, nem de que a compatibilidade de media seja igual entre Samsung Browser e TizenBrew.
+Os ficheiros `main_v3.js`, `main_v4.js`, `main_v5.js` e `main_v6.js` foram preservados. A v7 usa `main_v7.js`.
 
-Os ficheiros anteriores `main_v3.js`, `main_v4.js` e `main_v5.js` foram mantidos para rollback.
+Apenas sintaxe e integridade do repositorio foram verificadas remotamente; a v7 ainda nao foi validada em hardware.
