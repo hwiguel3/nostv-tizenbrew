@@ -1,11 +1,11 @@
 {
   "name": "nostv-remote-tizenbrew",
-  "appName": "NOS TV (Comando v3 - Azul)",
-  "version": "0.3.0",
-  "description": "Comando azul, PIN, scroll vertical e horizontal, e cliques corrigidos para nostv.pt.",
+  "appName": "NOS TV (Comando v4 - Azul)",
+  "version": "0.4.0",
+  "description": "Contornos azuis, saida das listas de canais, scroll e diagnostico PIN/NTV135.",
   "packageType": "mods",
   "websiteURL": "https://nostv.pt/",
-  "main": "main_v3.js",
+  "main": "main_v4.js",
   "keys": [
     "ColorF1Green",
     "ColorF3Blue"
